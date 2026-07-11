@@ -2,7 +2,7 @@
 
 A standalone plugin for **Nuclear Music Player** that automatically syncs your Liked Songs from YouTube Music directly to your local playlists. 
 
-No external Python scripts or background services are required. The sync is processed entirely within the player using Tauri's backend bridge.
+No external Python scripts or background services are required. The sync is processed entirely within the player using Tauri's backend bridge and respects your data privacy.
 
 ---
 
@@ -12,7 +12,7 @@ No external Python scripts or background services are required. The sync is proc
 1. Open **Nuclear Music Player**.
 2. Navigate to **Settings** (gear icon in the bottom-left corner) -> **Plugins** -> **Installed**.
 3. Click the **Add Plugin** button.
-4. Select the directory containing this eklenti (`nuclear-plugin-youtube-liked-songs-sync`).
+4. Select this directory (`nuclear-plugin-youtube-liked-songs-sync`).
 5. Ensure the plugin **"Youtube Liked Songs Sync"** is toggled to **Enabled**.
 
 ### Step 2: Restart Nuclear Music Player (Crucial)
@@ -35,7 +35,8 @@ No external Python scripts or background services are required. The sync is proc
 
 ## 🔄 How to Sync
 
-1. Go to **Settings** -> **Plugins** -> **Installed**.
-2. Toggle the **"Youtube Liked Songs Sync"** switch to **Disabled**, and then back to **Enabled**.
-3. The plugin will immediately fetch your liked tracks in the background, updating the **Sync Status** in real-time (*Fetching page 1...*, *Fetching page 2...*, etc.).
-4. Once completed, a browser alert will notify you of the synced track count, and a new playlist named **"YouTube Liked Songs"** will appear under your **Playlists** tab!
+1. Go to **Settings** -> **Preferences** -> **General** (or scroll down to the **"Youtube Liked Songs Sync"** section).
+2. Toggle the **"Sync Liked Songs Now"** switch to **Enabled**.
+3. The eklenti will immediately fetch your liked tracks in the background, updating the **Sync Status** in real-time (*Fetching page 1...*, *Fetching page 2...*, etc.).
+4. The switch will automatically toggle back to Off when the process completes. You can check the final status in the **Sync Status** text field (e.g. *Success! Synced 1224 songs*).
+5. All sync logs can also be monitored in real-time under the **Preferences** -> **Logs** section inside Nuclear Player!

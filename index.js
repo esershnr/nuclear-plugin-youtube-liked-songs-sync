@@ -109,7 +109,7 @@ function parseTrackRenderer(renderer) {
 
 module.exports = {
   onLoad: async function(api) {
-    console.log("Youtube Liked Songs Sync Plugin Loaded!");
+    if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Loaded!");
     
     try {
       await api.Settings.register([
@@ -148,12 +148,12 @@ module.exports = {
         }
       ]);
     } catch (e) {
-      console.error("[-] Failed to register settings:", e);
+      if (api.Logger) api.Logger.error("Failed to register settings: " + e.message);
     }
     
     api.Settings.subscribe('syncTrigger', async (value) => {
       if (value === true) {
-        console.log("[~] Starting YouTube Music Sync directly in JS...");
+        if (api.Logger) api.Logger.info("Starting YouTube Music Sync directly in JS...");
         
         try {
           await api.Settings.set('syncStatus', 'Preparing headers...');
@@ -185,6 +185,7 @@ module.exports = {
           let continuationToken = null;
           
           await api.Settings.set('syncStatus', 'Fetching page 1...');
+          if (api.Logger) api.Logger.info("Fetching first page of liked tracks from YouTube Music...");
           
           const initialBody = {
             browseId: 'VLLM',
@@ -217,6 +218,7 @@ module.exports = {
           while (continuationToken) {
             pageCount++;
             await api.Settings.set('syncStatus', `Fetching page ${pageCount}... (${allTracks.length} tracks found)`);
+            if (api.Logger) api.Logger.info(`Fetching continuation page ${pageCount}... (${allTracks.length} tracks fetched so far)`);
             
             const continuationBody = {
               context: {
@@ -237,7 +239,7 @@ module.exports = {
             });
             
             if (contResponse.status !== 200) {
-              console.warn(`[-] Continuation fetch failed at page ${pageCount} with status ${contResponse.status}. Stopping search.`);
+              if (api.Logger) api.Logger.warn(`Continuation fetch failed at page ${pageCount} with status ${contResponse.status}. Stopping search.`);
               break;
             }
             
@@ -253,6 +255,7 @@ module.exports = {
           }
           
           await api.Settings.set('syncStatus', `Processing ${allTracks.length} tracks...`);
+          if (api.Logger) api.Logger.info(`Successfully fetched ${allTracks.length} tracks. Starting track parser...`);
           
           const parsedTracks = [];
           const nowIso = new Date().toISOString();
@@ -292,19 +295,14 @@ module.exports = {
           };
           
           await api.Settings.set('syncStatus', 'Importing into Nuclear...');
+          if (api.Logger) api.Logger.info("Importing parsed tracks into local playlist library...");
           await api.Playlists.importPlaylist(playlistToImport);
           
           await api.Settings.set('syncStatus', `Success! Synced ${parsedTracks.length} songs.`);
-          
-          if (typeof alert !== 'undefined') {
-            alert(`[Youtube Sync] Sync completed successfully! Synced ${parsedTracks.length} tracks.`);
-          }
+          if (api.Logger) api.Logger.info(`Sync completed successfully! Imported ${parsedTracks.length} tracks.`);
         } catch (e) {
-          console.error("[-] Sync failed:", e);
+          if (api.Logger) api.Logger.error("Sync failed: " + e.message);
           await api.Settings.set('syncStatus', `Error: ${e.message}`);
-          if (typeof alert !== 'undefined') {
-            alert(`[Youtube Sync Error] Failed to sync: ${e.message}`);
-          }
         } finally {
           try {
             await api.Settings.set('syncTrigger', false);
@@ -314,9 +312,9 @@ module.exports = {
     });
   },
   onEnable: async function(api) {
-    console.log("Youtube Liked Songs Sync Plugin Enabled!");
+    if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Enabled!");
   },
   onDisable: async function(api) {
-    console.log("Youtube Liked Songs Sync Plugin Disabled!");
+    if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Disabled!");
   }
 };
