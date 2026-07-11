@@ -13,14 +13,14 @@ No external Python scripts or background services are required. The sync is proc
 2. Navigate to **Settings** (gear icon in the bottom-left corner) -> **Plugins** -> **Installed**.
 3. Click the **Add Plugin** button.
 4. Select this directory (`nuclear-plugin-youtube-liked-songs-sync`).
-5. Ensure the plugin **"Youtube Liked Songs Sync"** is toggled to **Enabled**.
+5. Ensure the plugin **"YouTube Liked Songs Sync"** is toggled to **Enabled**.
 
 ### Step 2: Restart Nuclear Music Player (Crucial)
 > [!IMPORTANT]
 > You **MUST restart** Nuclear Music Player completely after enabling the plugin for the settings UI to refresh and load the required input fields.
 
 ### Step 3: Configure Settings
-1. After restarting, open Nuclear and navigate to **Preferences** -> **General** (or scroll down in the Settings menu) to find the **"Youtube Liked Songs Sync"** section.
+1. After restarting, open Nuclear and navigate to **Preferences** -> **General** (or scroll down in the Settings menu) to find the **"YouTube Liked Songs Sync"** section.
 2. Locate the two input fields: **YouTube Music Cookie** and **YouTube Music Authorization**.
 3. To obtain these values:
    - Open [music.youtube.com](https://music.youtube.com) in your web browser and ensure you are logged in.
@@ -35,7 +35,7 @@ No external Python scripts or background services are required. The sync is proc
 
 ## 🔄 How to Sync
 
-1. Go to **Preferences** -> **General** (or scroll down to the **"Youtube Liked Songs Sync"** section).
+1. Go to **Preferences** -> **General** (or scroll down to the **"YouTube Liked Songs Sync"** section).
 2. Click the **"Sync Liked Songs Now"** button.
 3. The plugin will immediately fetch your liked tracks in the background, updating the **Sync Status** in real-time (*Fetching page 1...*, *Fetching page 2...*, etc.).
 4. The button will dynamically show **"Syncing..."** and disable itself during the process. Once completed, it will re-enable, and you can check the final status in the **Sync Status** text field (e.g. *Success! Synced 1224 songs*).
