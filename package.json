@@ -1,0 +1,13 @@
+{
+  "name": "nuclear-plugin-youtube-liked-songs-sync",
+  "version": "0.1.0",
+  "description": "Syncs YouTube Music Liked Songs to Nuclear local playlists",
+  "main": "index.js",
+  "author": "esershnr",
+  "nuclear": {
+    "displayName": "Youtube Liked Songs Sync",
+    "categories": [
+      "playlists"
+    ]
+  }
+}
