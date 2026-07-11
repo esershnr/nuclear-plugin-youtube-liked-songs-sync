@@ -1,18 +1,21 @@
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+import React, { useState, useEffect } from 'react';
+import type { NuclearPlugin, NuclearPluginAPI } from '@nuclearplayer/plugin-sdk';
+
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = Math.random() * 16 | 0;
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
 }
 
-function findTracksRecursive(obj, tracksList = []) {
+function findTracksRecursive(obj: any, tracksList: any[] = []): any[] {
   if (!obj || typeof obj !== 'object') return tracksList;
   
   if (obj.musicResponsiveListItemRenderer) {
     tracksList.push(obj.musicResponsiveListItemRenderer);
   } else {
-    for (let key in obj) {
+    for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         findTracksRecursive(obj[key], tracksList);
       }
@@ -21,7 +24,7 @@ function findTracksRecursive(obj, tracksList = []) {
   return tracksList;
 }
 
-function findContinuationToken(obj) {
+function findContinuationToken(obj: any): string | null {
   if (!obj || typeof obj !== 'object') return null;
   
   if (obj.continuationCommand && obj.continuationCommand.token) {
@@ -31,7 +34,7 @@ function findContinuationToken(obj) {
     return obj.nextContinuationData.continuation;
   }
   
-  for (let key in obj) {
+  for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const token = findContinuationToken(obj[key]);
       if (token) return token;
@@ -40,8 +43,15 @@ function findContinuationToken(obj) {
   return null;
 }
 
-function parseTrackRenderer(renderer) {
-  let videoId = null;
+interface ParsedTrack {
+  title: string;
+  artists: { name: string; roles: any[] }[];
+  artworkItems: { url: string; width: number; height: number }[];
+  videoId: string;
+}
+
+function parseTrackRenderer(renderer: any): ParsedTrack | null {
+  let videoId: string | null = null;
   if (renderer.playlistItemData && renderer.playlistItemData.videoId) {
     videoId = renderer.playlistItemData.videoId;
   } else {
@@ -53,7 +63,7 @@ function parseTrackRenderer(renderer) {
   if (!videoId) return null;
   
   let title = "Unknown Title";
-  let artists = [];
+  const artists: { name: string; roles: any[] }[] = [];
   
   try {
     const flexColumns = renderer.flexColumns || [];
@@ -69,7 +79,7 @@ function parseTrackRenderer(renderer) {
       const text = flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text;
       if (text && text.runs) {
         const runs = text.runs;
-        for (let run of runs) {
+        for (const run of runs) {
           if (run.text.includes("•") || run.text.includes("\u2022")) {
             break;
           }
@@ -87,11 +97,11 @@ function parseTrackRenderer(renderer) {
     console.error("Error parsing flexColumns:", e);
   }
   
-  let artworkItems = [];
+  let artworkItems: { url: string; width: number; height: number }[] = [];
   try {
     if (renderer.thumbnail && renderer.thumbnail.musicThumbnailRenderer) {
       const thumbnails = renderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails || [];
-      artworkItems = thumbnails.map(t => ({
+      artworkItems = thumbnails.map((t: any) => ({
         url: t.url,
         width: t.width,
         height: t.height
@@ -107,9 +117,59 @@ function parseTrackRenderer(renderer) {
   };
 }
 
-module.exports = {
-  onLoad: async function(api) {
-    if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Loaded!");
+const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
+  onLoad: async (api: NuclearPluginAPI) => {
+    if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Loaded (TSX Edition)!");
+    
+    // Define the custom settings React Button widget
+    const SyncButtonWidget: React.FC = () => {
+      const [isSyncing, setIsSyncing] = useState(false);
+
+      useEffect(() => {
+        const unsub = api.Settings.subscribe('syncStatus', (status: string | unknown) => {
+          const statusStr = typeof status === 'string' ? status : '';
+          if (statusStr && (
+            statusStr.startsWith('Fetching') || 
+            statusStr.startsWith('Preparing') || 
+            statusStr.startsWith('Processing') || 
+            statusStr.startsWith('Importing')
+          )) {
+            setIsSyncing(true);
+          } else {
+            setIsSyncing(false);
+          }
+        });
+        return () => unsub();
+      }, []);
+
+      return (
+        <button
+          className="ui button primary"
+          style={{
+            padding: '10px 20px',
+            backgroundColor: isSyncing ? '#767676' : '#2185d0',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: isSyncing ? 'not-allowed' : 'pointer',
+            fontWeight: 'bold',
+            transition: 'background-color 0.2s ease'
+          }}
+          disabled={isSyncing}
+          onClick={async () => {
+            await api.Settings.set('syncTrigger', true);
+          }}
+        >
+          {isSyncing ? 'Syncing...' : 'Sync Liked Songs Now'}
+        </button>
+      );
+    };
+
+    try {
+      api.Settings.registerWidget('yt-liked-songs-sync-button-widget', SyncButtonWidget);
+    } catch (e: any) {
+      if (api.Logger) api.Logger.error("Failed to register custom widget: " + e.message);
+    }
     
     try {
       await api.Settings.register([
@@ -138,28 +198,37 @@ module.exports = {
           default: 'Ready'
         },
         {
+          id: 'syncTriggerButton',
+          title: 'Sync Action',
+          description: 'Click the button below to start syncing your Liked Songs from YouTube Music.',
+          category: 'Youtube Liked Songs Sync',
+          kind: 'custom',
+          widgetId: 'yt-liked-songs-sync-button-widget',
+          default: null
+        },
+        {
           id: 'syncTrigger',
-          title: 'Sync Liked Songs Now',
-          description: 'Toggle this switch to start syncing your YouTube Music Liked Songs directly.',
+          title: 'Sync Trigger (Hidden)',
+          description: 'Internal sync trigger flag.',
           category: 'Youtube Liked Songs Sync',
           kind: 'boolean',
           default: false,
-          widget: { type: 'toggle' }
+          hidden: true
         }
       ]);
-    } catch (e) {
+    } catch (e: any) {
       if (api.Logger) api.Logger.error("Failed to register settings: " + e.message);
     }
     
-    api.Settings.subscribe('syncTrigger', async (value) => {
+    api.Settings.subscribe('syncTrigger', async (value: boolean | unknown) => {
       if (value === true) {
-        if (api.Logger) api.Logger.info("Starting YouTube Music Sync directly in JS...");
+        if (api.Logger) api.Logger.info("Starting YouTube Music Sync directly in TSX...");
         
         try {
           await api.Settings.set('syncStatus', 'Preparing headers...');
           
-          const ytCookie = await api.Settings.get('ytCookie');
-          const ytAuth = await api.Settings.get('ytAuth');
+          const ytCookie = await api.Settings.get<string>('ytCookie');
+          const ytAuth = await api.Settings.get<string>('ytAuth');
           
           if (!ytCookie || ytCookie.trim() === '') {
             throw new Error("Cookie is empty! Please paste your YouTube Music cookie first.");
@@ -168,7 +237,7 @@ module.exports = {
             throw new Error("Authorization is empty! Please paste your YouTube Music authorization first.");
           }
           
-          const parsedHeaders = {
+          const parsedHeaders: Record<string, string> = {
             'content-type': 'application/json',
             'cookie': ytCookie.trim(),
             'authorization': ytAuth.trim(),
@@ -181,8 +250,8 @@ module.exports = {
             'x-youtube-client-version': '1.20260707.12.00'
           };
           
-          let allTracks = [];
-          let continuationToken = null;
+          let allTracks: any[] = [];
+          let continuationToken: string | null = null;
           
           await api.Settings.set('syncStatus', 'Fetching page 1...');
           if (api.Logger) api.Logger.info("Fetching first page of liked tracks from YouTube Music...");
@@ -210,7 +279,7 @@ module.exports = {
           }
           
           const responseData = await response.json();
-          let foundRenderers = findTracksRecursive(responseData);
+          const foundRenderers = findTracksRecursive(responseData);
           allTracks = allTracks.concat(foundRenderers);
           continuationToken = findContinuationToken(responseData);
           
@@ -255,12 +324,12 @@ module.exports = {
           }
           
           await api.Settings.set('syncStatus', `Processing ${allTracks.length} tracks...`);
-          if (api.Logger) api.Logger.info(`Successfully fetched ${allTracks.length} tracks. Starting track parser...`);
+          if (api.Logger) api.Logger.info(`Fetched ${allTracks.length} raw track renderers from YouTube Music. Starting parsing...`);
           
-          const parsedTracks = [];
+          const parsedTracks: any[] = [];
           const nowIso = new Date().toISOString();
           
-          for (let renderer of allTracks) {
+          for (const renderer of allTracks) {
             const parsed = parseTrackRenderer(renderer);
             if (parsed) {
               parsedTracks.push({
@@ -295,12 +364,12 @@ module.exports = {
           };
           
           await api.Settings.set('syncStatus', 'Importing into Nuclear...');
-          if (api.Logger) api.Logger.info("Importing parsed tracks into local playlist library...");
+          if (api.Logger) api.Logger.info(`Starting import of ${parsedTracks.length} tracks into Nuclear playlists database...`);
           await api.Playlists.importPlaylist(playlistToImport);
           
           await api.Settings.set('syncStatus', `Success! Synced ${parsedTracks.length} songs.`);
-          if (api.Logger) api.Logger.info(`Sync completed successfully! Imported ${parsedTracks.length} tracks.`);
-        } catch (e) {
+          if (api.Logger) api.Logger.info(`[Youtube Sync Status] SUCCESS: Successfully synced and imported ${parsedTracks.length} tracks into local playlists!`);
+        } catch (e: any) {
           if (api.Logger) api.Logger.error("Sync failed: " + e.message);
           await api.Settings.set('syncStatus', `Error: ${e.message}`);
         } finally {
@@ -311,10 +380,12 @@ module.exports = {
       }
     });
   },
-  onEnable: async function(api) {
+  onEnable: async (api: NuclearPluginAPI) => {
     if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Enabled!");
   },
-  onDisable: async function(api) {
+  onDisable: async (api: NuclearPluginAPI) => {
     if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Disabled!");
   }
 };
+
+export default youtubeLikedSongsSyncPlugin;
