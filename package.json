@@ -5,7 +5,7 @@
   "main": "index.tsx",
   "author": "esershnr",
   "nuclear": {
-    "displayName": "Youtube Liked Songs Sync",
+    "displayName": "YouTube Liked Songs Sync",
     "categories": [
       "playlists"
     ]
