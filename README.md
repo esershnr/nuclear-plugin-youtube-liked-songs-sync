@@ -35,7 +35,7 @@ No external Python scripts or background services are required. The sync is proc
 
 ## 🔄 How to Sync
 
-1. Go to **Settings** -> **Preferences** -> **General** (or scroll down to the **"Youtube Liked Songs Sync"** section).
+1. Go to **Preferences** -> **General** (or scroll down to the **"Youtube Liked Songs Sync"** section).
 2. Click the **"Sync Liked Songs Now"** button.
 3. The plugin will immediately fetch your liked tracks in the background, updating the **Sync Status** in real-time (*Fetching page 1...*, *Fetching page 2...*, etc.).
 4. The button will dynamically show **"Syncing..."** and disable itself during the process. Once completed, it will re-enable, and you can check the final status in the **Sync Status** text field (e.g. *Success! Synced 1224 songs*).
