@@ -119,7 +119,7 @@ function parseTrackRenderer(renderer: any): ParsedTrack | null {
 
 const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
   onLoad: async (api: NuclearPluginAPI) => {
-    if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Loaded (TSX Edition)!");
+    if (api.Logger) api.Logger.info("YouTube Liked Songs Sync Plugin Loaded (TSX Edition)!");
     
     // Define the custom settings React Button widget
     const SyncButtonWidget: React.FC = () => {
@@ -177,7 +177,7 @@ const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
           id: 'ytCookie',
           title: 'YouTube Music Cookie',
           description: 'Steps: 1. Open music.youtube.com & log in. 2. Press F12, go to Network tab. 3. Refresh page, type "/browse" in filter. 4. Click a browse POST request. 5. Copy the value of the "cookie" header from Request Headers.',
-          category: 'Youtube Liked Songs Sync',
+          category: 'YouTube Liked Songs Sync',
           kind: 'string',
           default: ''
         },
@@ -185,7 +185,7 @@ const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
           id: 'ytAuth',
           title: 'YouTube Music Authorization',
           description: 'Steps: Copy the value of the "authorization" header (starts with "SAPISIDHASH") from the same "/browse" Request Headers in the Network tab.',
-          category: 'Youtube Liked Songs Sync',
+          category: 'YouTube Liked Songs Sync',
           kind: 'string',
           default: ''
         },
@@ -193,7 +193,7 @@ const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
           id: 'syncStatus',
           title: 'Sync Status',
           description: 'Status of the latest sync process.',
-          category: 'Youtube Liked Songs Sync',
+          category: 'YouTube Liked Songs Sync',
           kind: 'string',
           default: 'Ready'
         },
@@ -201,7 +201,7 @@ const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
           id: 'syncTriggerButton',
           title: 'Sync Action',
           description: 'Click the button below to start syncing your Liked Songs from YouTube Music.',
-          category: 'Youtube Liked Songs Sync',
+          category: 'YouTube Liked Songs Sync',
           kind: 'custom',
           widgetId: 'yt-liked-songs-sync-button-widget',
           default: null
@@ -210,7 +210,7 @@ const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
           id: 'syncTrigger',
           title: 'Sync Trigger (Hidden)',
           description: 'Internal sync trigger flag.',
-          category: 'Youtube Liked Songs Sync',
+          category: 'YouTube Liked Songs Sync',
           kind: 'boolean',
           default: false,
           hidden: true
@@ -368,7 +368,7 @@ const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
           await api.Playlists.importPlaylist(playlistToImport);
           
           await api.Settings.set('syncStatus', `Success! Synced ${parsedTracks.length} songs.`);
-          if (api.Logger) api.Logger.info(`[Youtube Sync Status] SUCCESS: Successfully synced and imported ${parsedTracks.length} tracks into local playlists!`);
+          if (api.Logger) api.Logger.info(`[YouTube Sync Status] SUCCESS: Successfully synced and imported ${parsedTracks.length} tracks into local playlists!`);
         } catch (e: any) {
           if (api.Logger) api.Logger.error("Sync failed: " + e.message);
           await api.Settings.set('syncStatus', `Error: ${e.message}`);
@@ -381,10 +381,10 @@ const youtubeLikedSongsSyncPlugin: NuclearPlugin = {
     });
   },
   onEnable: async (api: NuclearPluginAPI) => {
-    if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Enabled!");
+    if (api.Logger) api.Logger.info("YouTube Liked Songs Sync Plugin Enabled!");
   },
   onDisable: async (api: NuclearPluginAPI) => {
-    if (api.Logger) api.Logger.info("Youtube Liked Songs Sync Plugin Disabled!");
+    if (api.Logger) api.Logger.info("YouTube Liked Songs Sync Plugin Disabled!");
   }
 };
 
